@@ -2,6 +2,12 @@
 
 Frontend practice tool for beginner and early-intermediate pianists learning to read **chord shapes** on the staff.
 
+## Live demo
+
+https://dagjomar.github.io/piano-chord-shape-reader/
+
+Deployed automatically to GitHub Pages on pushes to `main`.
+
 ## Quick start
 
 ```bash
