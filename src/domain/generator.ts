@@ -1,0 +1,48 @@
+import { fitChordToRange } from './chordNotes'
+import type { ChordFilters, ChordSpec, Clef, Inversion, PitchClass } from './types'
+
+function pickRandom<T>(items: T[]): T {
+  return items[Math.floor(Math.random() * items.length)]!
+}
+
+export function generateChord(filters: ChordFilters): ChordSpec {
+  const root = pickRandom(filters.roots)
+  const quality = pickRandom(filters.qualities)
+  const inversion = pickRandom(filters.inversions)
+  const clef = pickRandom(filters.clefs)
+  const { octave } = fitChordToRange(
+    root,
+    quality,
+    inversion,
+    clef,
+    filters.minMidi,
+    filters.maxMidi,
+  )
+
+  return { root, quality, inversion, octave, clef }
+}
+
+export function generateChordBatch(filters: ChordFilters, count: number): ChordSpec[] {
+  return Array.from({ length: count }, () => generateChord(filters))
+}
+
+export function allRootsInKey(keyRoot: PitchClass, mode: 'major' | 'minor'): PitchClass[] {
+  const majorScale = [0, 2, 4, 5, 7, 9, 11]
+  const naturalMinor = [0, 2, 3, 5, 7, 8, 10]
+  const scale = mode === 'major' ? majorScale : naturalMinor
+  return scale.map((step) => ((keyRoot + step) % 12) as PitchClass)
+}
+
+export function parseInversions(values: number[]): Inversion[] {
+  return values.filter((v): v is Inversion => v === 0 || v === 1 || v === 2)
+}
+
+export function parsePitchClasses(values: number[]): PitchClass[] {
+  return values
+    .filter((v) => v >= 0 && v <= 11)
+    .map((v) => v as PitchClass)
+}
+
+export function parseClefs(values: string[]): Clef[] {
+  return values.filter((v): v is Clef => v === 'treble' || v === 'bass')
+}
