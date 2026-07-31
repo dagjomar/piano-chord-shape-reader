@@ -78,12 +78,16 @@ body {
 .practice-stage {
   flex: 1;
   display: grid;
-  grid-template-columns: minmax(220px, 280px) 1fr;
+  grid-template-columns: 1fr;
   gap: 0;
 }
 
+.practice-stage.settings-open {
+  grid-template-columns: minmax(220px, 280px) 1fr;
+}
+
 @media (max-width: 860px) {
-  .practice-stage {
+  .practice-stage.settings-open {
     grid-template-columns: 1fr;
   }
 }

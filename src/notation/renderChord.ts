@@ -1,5 +1,5 @@
 import { Renderer, Stave, StaveNote, Formatter, Accidental, Voice } from 'vexflow'
-import { chordMidiNotes, chordSymbol } from '../domain/chordNotes'
+import { chordMidiNotes, chordSymbol, pitchClassFromMidi } from '../domain/chordNotes'
 import type { ChordSpec } from '../domain/types'
 
 const NOTE_NAMES = ['c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#', 'a', 'a#', 'b'] as const
@@ -44,8 +44,9 @@ function drawChordNote(
     }
   })
 
-  if (options.rootAccent) {
-    note.setKeyStyle(0, { fillStyle: '#c45c26', strokeStyle: '#c45c26' })
+  const rootIndex = midiNotes.findIndex((midi) => pitchClassFromMidi(midi) === chord.root)
+  if (options.rootAccent && rootIndex >= 0) {
+    note.setKeyStyle(rootIndex, { fillStyle: '#c45c26', strokeStyle: '#c45c26' })
   }
 
   if (options.highlight) {
@@ -120,8 +121,9 @@ export function renderChordSequence(
         note.addModifier(new Accidental('#'), index)
       }
     })
-    if (options.rootAccent) {
-      note.setKeyStyle(0, { fillStyle: '#c45c26', strokeStyle: '#c45c26' })
+    const rootIndex = midiNotes.findIndex((midi) => pitchClassFromMidi(midi) === chord.root)
+    if (options.rootAccent && rootIndex >= 0) {
+      note.setKeyStyle(rootIndex, { fillStyle: '#c45c26', strokeStyle: '#c45c26' })
     }
     if (chordIndex === activeIndex) {
       note.setStyle({ fillStyle: '#2a6f4e', strokeStyle: '#2a6f4e' })
