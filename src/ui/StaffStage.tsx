@@ -17,7 +17,6 @@ export function StaffStage({ chord, rootAccent, showSymbol, hinted }: StaffStage
     renderChordToElement(containerRef.current, chord, {
       rootAccent: rootAccent || hinted,
       showSymbol,
-      highlight: hinted,
     })
   }, [chord, rootAccent, showSymbol, hinted])
 

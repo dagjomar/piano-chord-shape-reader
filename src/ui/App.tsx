@@ -67,7 +67,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="practice-stage">
+      <main className={`practice-stage${settingsOpen ? ' settings-open' : ''}`}>
         {settingsOpen && (
           <SettingsPanel
             config={config}
