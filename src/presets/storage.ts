@@ -1,4 +1,7 @@
-import type { SessionConfig } from '../domain/types'
+import {
+  clampAutoInterval,
+  type SessionConfig,
+} from '../domain/types'
 import {
   buildSessionConfig,
   DEFAULT_KEY_ID,
@@ -19,6 +22,9 @@ export function loadSessionConfig(): SessionConfig {
     return buildSessionConfig(keyId, levelId, {
       rootAccent: saved.rootAccent ?? true,
       showSymbol: saved.showSymbol ?? true,
+      autoAdvanceIntervalSec: clampAutoInterval(
+        saved.autoAdvanceIntervalSec ?? 8,
+      ),
     })
   } catch {
     return buildSessionConfig(DEFAULT_KEY_ID, DEFAULT_LEVEL_ID)
@@ -33,6 +39,7 @@ export function saveSessionConfig(config: SessionConfig): void {
       presetLevelId: config.presetLevelId,
       rootAccent: config.rootAccent,
       showSymbol: config.showSymbol,
+      autoAdvanceIntervalSec: config.autoAdvanceIntervalSec,
     }),
   )
 }

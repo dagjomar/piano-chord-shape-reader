@@ -39,12 +39,24 @@ export interface ChordFilters {
   chordPool?: ChordPoolEntry[]
 }
 
+export const AUTO_ADVANCE_MIN_SEC = 2
+export const AUTO_ADVANCE_MAX_SEC = 30
+export const AUTO_ADVANCE_DEFAULT_SEC = 8
+
+export function clampAutoInterval(sec: number): number {
+  return Math.min(
+    AUTO_ADVANCE_MAX_SEC,
+    Math.max(AUTO_ADVANCE_MIN_SEC, Math.round(sec)),
+  )
+}
+
 export interface SessionConfig {
   filters: ChordFilters
   mode: SessionMode
   matchStrictness: MatchStrictness
   rootAccent: boolean
   showSymbol: boolean
+  autoAdvanceIntervalSec: number
   presetKeyId: string
   presetLevelId: string
 }
@@ -86,6 +98,7 @@ export const DEFAULT_SESSION_CONFIG: SessionConfig = {
   matchStrictness: 'pitchClass',
   rootAccent: true,
   showSymbol: true,
+  autoAdvanceIntervalSec: AUTO_ADVANCE_DEFAULT_SEC,
   presetKeyId: 'c-major',
   presetLevelId: '1-primary',
 }

@@ -8,13 +8,15 @@ import {
   buildSessionConfig,
 } from '../presets/definitions'
 import { averageReaction } from '../session/flashSession'
+import { IntervalControl } from './IntervalControl'
 
 interface SettingsPanelProps {
   config: SessionConfig
   onChange: (config: SessionConfig) => void
+  onStartAutoMode?: () => void
 }
 
-export function SettingsPanel({ config, onChange }: SettingsPanelProps) {
+export function SettingsPanel({ config, onChange, onStartAutoMode }: SettingsPanelProps) {
   const key = findPracticeKey(config.presetKeyId)
   const level = findPracticeLevel(config.presetLevelId)
 
@@ -23,6 +25,7 @@ export function SettingsPanel({ config, onChange }: SettingsPanelProps) {
       buildSessionConfig(keyId, levelId, {
         rootAccent: config.rootAccent,
         showSymbol: config.showSymbol,
+        autoAdvanceIntervalSec: config.autoAdvanceIntervalSec,
       }),
     )
   }
@@ -62,6 +65,28 @@ export function SettingsPanel({ config, onChange }: SettingsPanelProps) {
 
         <p className="level-description">{level.description}</p>
         <p className="level-summary">{describePreset(key.id, level.id)}</p>
+      </fieldset>
+
+      <fieldset className="auto-mode-fieldset">
+        <legend>Auto mode</legend>
+        <p className="auto-mode-hint">
+          Chords advance automatically after the interval. Play the chord or wait
+          for the next one.
+        </p>
+        <label className="interval-label">
+          Seconds between chords
+          <IntervalControl
+            value={config.autoAdvanceIntervalSec}
+            onChange={(autoAdvanceIntervalSec) =>
+              onChange({ ...config, autoAdvanceIntervalSec })
+            }
+          />
+        </label>
+        {onStartAutoMode && (
+          <button type="button" className="btn start-auto-btn" onClick={onStartAutoMode}>
+            Start auto mode
+          </button>
+        )}
       </fieldset>
 
       <fieldset>

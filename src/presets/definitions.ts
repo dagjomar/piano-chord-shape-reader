@@ -168,9 +168,13 @@ export function buildFilters(keyId: string, levelId: string): ChordFilters {
 export function buildSessionConfig(
   keyId: string,
   levelId: string,
-  display: Pick<SessionConfig, 'rootAccent' | 'showSymbol'> = {
+  display: Pick<
+    SessionConfig,
+    'rootAccent' | 'showSymbol' | 'autoAdvanceIntervalSec'
+  > = {
     rootAccent: true,
     showSymbol: true,
+    autoAdvanceIntervalSec: 8,
   },
 ): SessionConfig {
   const level = findPracticeLevel(levelId)
@@ -180,6 +184,7 @@ export function buildSessionConfig(
     matchStrictness: level.matchStrictness,
     rootAccent: display.rootAccent,
     showSymbol: display.showSymbol,
+    autoAdvanceIntervalSec: display.autoAdvanceIntervalSec,
     presetKeyId: keyId,
     presetLevelId: levelId,
   }
