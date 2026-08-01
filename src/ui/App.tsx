@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useMidiInput } from '../input/useMidi'
 import { VirtualPiano } from '../input/VirtualPiano'
 import { loadSessionConfig, saveSessionConfig } from '../presets/storage'
+import { findPracticeKey, findPracticeLevel } from '../presets/definitions'
 import {
   checkAnswer,
   createFlashSession,
@@ -46,13 +47,20 @@ export default function App() {
   }, [config])
 
   const resetSession = () => setSession(createFlashSession(config))
+  const practiceKey = findPracticeKey(config.presetKeyId)
+  const practiceLevel = findPracticeLevel(config.presetLevelId)
 
   return (
     <div className="app">
       <header className="app-header">
         <div className="brand">
           <span className="brand-mark" aria-hidden="true">♩</span>
-          <h1>Chord Shape Reader</h1>
+          <div className="brand-text">
+            <h1>Chord Shape Reader</h1>
+            <p className="practice-badge">
+              {practiceKey.name} · {practiceLevel.name}
+            </p>
+          </div>
         </div>
         <StatsBar stats={session.stats} />
         <div className="header-actions">

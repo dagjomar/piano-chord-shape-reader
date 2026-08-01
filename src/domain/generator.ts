@@ -8,8 +8,18 @@ function pickRandom<T>(items: T[]): T {
 }
 
 export function generateChord(filters: ChordFilters): ChordSpec {
-  const root = pickRandom(filters.roots)
-  const quality = pickRandom(filters.qualities)
+  let root: PitchClass
+  let quality: ChordFilters['qualities'][number]
+
+  if (filters.chordPool && filters.chordPool.length > 0) {
+    const entry = pickRandom(filters.chordPool)
+    root = entry.root
+    quality = entry.quality
+  } else {
+    root = pickRandom(filters.roots)
+    quality = pickRandom(filters.qualities)
+  }
+
   const inversion = pickRandom(filters.inversions)
   const clef = pickRandom(filters.clefs)
   const register = pickRandom(ROOT_REGISTERS)

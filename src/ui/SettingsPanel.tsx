@@ -1,109 +1,67 @@
 import type { SessionConfig, SessionStats } from '../domain/types'
+import {
+  describePreset,
+  findPracticeKey,
+  findPracticeLevel,
+  PRACTICE_KEYS,
+  PRACTICE_LEVELS,
+  buildSessionConfig,
+} from '../presets/definitions'
 import { averageReaction } from '../session/flashSession'
-import { PITCH_CLASS_NAMES } from '../domain/types'
 
 interface SettingsPanelProps {
   config: SessionConfig
   onChange: (config: SessionConfig) => void
 }
 
-function toggleItem<T>(list: T[], item: T): T[] {
-  return list.includes(item) ? list.filter((x) => x !== item) : [...list, item]
-}
-
 export function SettingsPanel({ config, onChange }: SettingsPanelProps) {
-  const { filters } = config
+  const key = findPracticeKey(config.presetKeyId)
+  const level = findPracticeLevel(config.presetLevelId)
+
+  const applyPreset = (keyId: string, levelId: string) => {
+    onChange(
+      buildSessionConfig(keyId, levelId, {
+        rootAccent: config.rootAccent,
+        showSymbol: config.showSymbol,
+      }),
+    )
+  }
 
   return (
     <aside className="settings-panel">
-      <fieldset>
-        <legend>Qualities</legend>
-        {(['maj', 'min'] as const).map((q) => (
-          <label key={q}>
-            <input
-              type="checkbox"
-              checked={filters.qualities.includes(q)}
-              onChange={() =>
-                onChange({
-                  ...config,
-                  filters: {
-                    ...filters,
-                    qualities: toggleItem(filters.qualities, q),
-                  },
-                })
-              }
-            />
-            {q === 'maj' ? 'Major' : 'Minor'}
-          </label>
-        ))}
-      </fieldset>
+      <fieldset className="preset-fieldset">
+        <legend>Practice</legend>
 
-      <fieldset>
-        <legend>Inversions</legend>
-        {([0, 1, 2] as const).map((inv) => (
-          <label key={inv}>
-            <input
-              type="checkbox"
-              checked={filters.inversions.includes(inv)}
-              onChange={() =>
-                onChange({
-                  ...config,
-                  filters: {
-                    ...filters,
-                    inversions: toggleItem(filters.inversions, inv),
-                  },
-                })
-              }
-            />
-            {inv === 0 ? 'Root' : inv === 1 ? '1st' : '2nd'}
-          </label>
-        ))}
-      </fieldset>
+        <label className="preset-select">
+          Key
+          <select
+            value={config.presetKeyId}
+            onChange={(e) => applyPreset(e.target.value, config.presetLevelId)}
+          >
+            {PRACTICE_KEYS.map((k) => (
+              <option key={k.id} value={k.id}>
+                {k.name}
+              </option>
+            ))}
+          </select>
+        </label>
 
-      <fieldset>
-        <legend>Clef</legend>
-        {(['treble', 'bass'] as const).map((clef) => (
-          <label key={clef}>
-            <input
-              type="checkbox"
-              checked={filters.clefs.includes(clef)}
-              onChange={() =>
-                onChange({
-                  ...config,
-                  filters: {
-                    ...filters,
-                    clefs: toggleItem(filters.clefs, clef),
-                  },
-                })
-              }
-            />
-            {clef === 'treble' ? 'Treble' : 'Bass'}
-          </label>
-        ))}
-      </fieldset>
+        <label className="preset-select">
+          Level
+          <select
+            value={config.presetLevelId}
+            onChange={(e) => applyPreset(config.presetKeyId, e.target.value)}
+          >
+            {PRACTICE_LEVELS.map((l) => (
+              <option key={l.id} value={l.id}>
+                {l.name}
+              </option>
+            ))}
+          </select>
+        </label>
 
-      <fieldset>
-        <legend>Roots</legend>
-        <div className="root-grid">
-          {PITCH_CLASS_NAMES.map((name, pc) => (
-            <label key={name}>
-              <input
-                type="checkbox"
-                checked={filters.roots.includes(pc as typeof filters.roots[number])}
-                onChange={() =>
-                  onChange({
-                    ...config,
-                    filters: {
-                      ...filters,
-                      roots: toggleItem(filters.roots, pc as typeof filters.roots[number]),
-                    },
-                  })
-                }
-              />
-              {name}
-            </label>
-          ))}
-        </div>
+        <p className="level-description">{level.description}</p>
+        <p className="level-summary">{describePreset(key.id, level.id)}</p>
       </fieldset>
 
       <fieldset>
@@ -112,7 +70,9 @@ export function SettingsPanel({ config, onChange }: SettingsPanelProps) {
           <input
             type="checkbox"
             checked={config.rootAccent}
-            onChange={() => onChange({ ...config, rootAccent: !config.rootAccent })}
+            onChange={() =>
+              onChange({ ...config, rootAccent: !config.rootAccent })
+            }
           />
           Root accent
         </label>
@@ -120,31 +80,11 @@ export function SettingsPanel({ config, onChange }: SettingsPanelProps) {
           <input
             type="checkbox"
             checked={config.showSymbol}
-            onChange={() => onChange({ ...config, showSymbol: !config.showSymbol })}
+            onChange={() =>
+              onChange({ ...config, showSymbol: !config.showSymbol })
+            }
           />
           Chord symbol
-        </label>
-      </fieldset>
-
-      <fieldset>
-        <legend>Matching</legend>
-        <label>
-          <input
-            type="radio"
-            name="match"
-            checked={config.matchStrictness === 'pitchClass'}
-            onChange={() => onChange({ ...config, matchStrictness: 'pitchClass' })}
-          />
-          Forgiving (pitch class)
-        </label>
-        <label>
-          <input
-            type="radio"
-            name="match"
-            checked={config.matchStrictness === 'strict'}
-            onChange={() => onChange({ ...config, matchStrictness: 'strict' })}
-          />
-          Strict voicing
         </label>
       </fieldset>
     </aside>

@@ -75,6 +75,23 @@ describe('generateChord', () => {
       expect(DEFAULT_FILTERS.clefs).toContain(chord.clef)
     }
   })
+
+  it('uses chordPool when provided', () => {
+    const filters = {
+      ...DEFAULT_FILTERS,
+      chordPool: [
+        { root: 0 as const, quality: 'maj' as const },
+        { root: 4 as const, quality: 'min' as const },
+      ],
+    }
+    for (let i = 0; i < 20; i++) {
+      const chord = generateChord(filters)
+      const valid =
+        (chord.root === 0 && chord.quality === 'maj') ||
+        (chord.root === 4 && chord.quality === 'min')
+      expect(valid).toBe(true)
+    }
+  })
 })
 
 describe('chordSymbol', () => {
