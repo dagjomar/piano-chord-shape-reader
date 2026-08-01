@@ -18,6 +18,16 @@ export interface ChordSpec {
   clef: Clef
 }
 
+export interface ChordPoolEntry {
+  root: PitchClass
+  quality: ChordQuality
+}
+
+export interface ChordPoolEntry {
+  root: PitchClass
+  quality: ChordQuality
+}
+
 export interface ChordFilters {
   qualities: ChordQuality[]
   roots: PitchClass[]
@@ -25,6 +35,8 @@ export interface ChordFilters {
   clefs: Clef[]
   minMidi: number
   maxMidi: number
+  /** When set, generator picks exact root+quality pairs instead of independent draws */
+  chordPool?: ChordPoolEntry[]
 }
 
 export interface SessionConfig {
@@ -33,6 +45,8 @@ export interface SessionConfig {
   matchStrictness: MatchStrictness
   rootAccent: boolean
   showSymbol: boolean
+  presetKeyId: string
+  presetLevelId: string
 }
 
 export type TrialResult = 'correct' | 'incorrect' | 'skipped' | 'hinted' | 'pending'
@@ -72,4 +86,6 @@ export const DEFAULT_SESSION_CONFIG: SessionConfig = {
   matchStrictness: 'pitchClass',
   rootAccent: true,
   showSymbol: true,
+  presetKeyId: 'c-major',
+  presetLevelId: '1-primary',
 }
