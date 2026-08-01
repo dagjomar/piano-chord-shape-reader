@@ -36,6 +36,49 @@ export function chordMidiNotes(
   return intervals.map((interval) => rootMidi + interval)
 }
 
+export type RootRegister = 'low' | 'mid' | 'high'
+
+function validOctavesInRange(
+  root: PitchClass,
+  quality: ChordQuality,
+  inversion: Inversion,
+  clef: 'treble' | 'bass',
+  minMidi: number,
+  maxMidi: number,
+): number[] {
+  const preferred = clef === 'treble' ? 4 : 3
+  const valid: number[] = []
+  for (let octave = preferred - 2; octave <= preferred + 2; octave++) {
+    const notes = chordMidiNotes(root, quality, inversion, octave)
+    if (notes.every((n) => n >= minMidi && n <= maxMidi)) {
+      valid.push(octave)
+    }
+  }
+  return valid
+}
+
+export function octaveForRegister(validOctaves: number[], register: RootRegister): number {
+  if (validOctaves.length === 0) {
+    throw new Error('octaveForRegister requires at least one valid octave')
+  }
+  if (validOctaves.length === 1) {
+    return validOctaves[0]!
+  }
+
+  const lowIdx = 0
+  const highIdx = validOctaves.length - 1
+  const midIdx = Math.round((lowIdx + highIdx) / 2)
+
+  switch (register) {
+    case 'low':
+      return validOctaves[lowIdx]!
+    case 'mid':
+      return validOctaves[midIdx]!
+    case 'high':
+      return validOctaves[highIdx]!
+  }
+}
+
 export function fitChordToRange(
   root: PitchClass,
   quality: ChordQuality,
@@ -43,18 +86,22 @@ export function fitChordToRange(
   clef: 'treble' | 'bass',
   minMidi: number,
   maxMidi: number,
+  register: RootRegister = 'low',
 ): { octave: number; notes: number[] } {
-  const preferred = clef === 'treble' ? 4 : 3
-  for (let octave = preferred - 2; octave <= preferred + 2; octave++) {
-    const notes = chordMidiNotes(root, quality, inversion, octave)
-    if (notes.every((n) => n >= minMidi && n <= maxMidi)) {
-      return { octave, notes }
+  const validOctaves = validOctavesInRange(root, quality, inversion, clef, minMidi, maxMidi)
+  const fallback = clef === 'treble' ? 4 : 3
+
+  if (validOctaves.length === 0) {
+    return {
+      octave: fallback,
+      notes: chordMidiNotes(root, quality, inversion, fallback),
     }
   }
-  const fallback = clef === 'treble' ? 4 : 3
+
+  const octave = octaveForRegister(validOctaves, register)
   return {
-    octave: fallback,
-    notes: chordMidiNotes(root, quality, inversion, fallback),
+    octave,
+    notes: chordMidiNotes(root, quality, inversion, octave),
   }
 }
 
