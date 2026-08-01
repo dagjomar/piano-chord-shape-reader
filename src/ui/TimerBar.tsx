@@ -6,30 +6,48 @@ interface TimerBarProps {
   active: boolean
 }
 
+interface TimerSnapshot {
+  /** Remaining time as 0–1 (1 = full bar, 0 = elapsed). */
+  remainingRatio: number
+  /** Whole seconds left, synced to the same clock as the bar. */
+  remainingSec: number
+}
+
+function snapshotTimer(shownAt: number, intervalSec: number, now = Date.now()): TimerSnapshot {
+  const totalMs = intervalSec * 1000
+  const remainingMs = Math.max(0, shownAt + totalMs - now)
+  const remainingRatio = totalMs > 0 ? remainingMs / totalMs : 0
+  const remainingSec =
+    remainingMs <= 0 ? 0 : Math.max(1, Math.floor(remainingMs / 1000))
+
+  return { remainingRatio, remainingSec }
+}
+
 export function TimerBar({ shownAt, intervalSec, active }: TimerBarProps) {
-  const [progress, setProgress] = useState(0)
+  const [timer, setTimer] = useState<TimerSnapshot>(() =>
+    snapshotTimer(shownAt, intervalSec),
+  )
 
   useEffect(() => {
     if (!active) {
-      setProgress(0)
+      setTimer({ remainingRatio: 0, remainingSec: 0 })
       return
     }
 
     let raf = 0
     const tick = () => {
-      const elapsed = Date.now() - shownAt
-      const total = intervalSec * 1000
-      setProgress(Math.min(1, elapsed / total))
+      setTimer(snapshotTimer(shownAt, intervalSec))
       raf = requestAnimationFrame(tick)
     }
 
+    setTimer(snapshotTimer(shownAt, intervalSec))
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
   }, [shownAt, intervalSec, active])
 
   if (!active) return null
 
-  const remainingSec = Math.max(0, Math.ceil(intervalSec * (1 - progress)))
+  const { remainingRatio, remainingSec } = timer
 
   return (
     <div
@@ -41,7 +59,10 @@ export function TimerBar({ shownAt, intervalSec, active }: TimerBarProps) {
       aria-label={`Next chord in ${remainingSec} seconds`}
     >
       <div className="timer-bar-track">
-        <div className="timer-bar-fill" style={{ width: `${progress * 100}%` }} />
+        <div
+          className="timer-bar-fill"
+          style={{ transform: `scaleX(${remainingRatio})` }}
+        />
       </div>
       <span className="timer-bar-label">{remainingSec}s</span>
     </div>
