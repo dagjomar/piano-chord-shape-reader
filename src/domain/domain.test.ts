@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { chordMidiNotes, chordSymbol, fitChordToRange } from './chordNotes'
+import { chordMidiNotes, chordSymbol, fitChordToRange, octaveForRegister } from './chordNotes'
 import { generateChord } from './generator'
 import { matchesChord } from './matcher'
 import { DEFAULT_FILTERS } from './types'
@@ -14,10 +14,31 @@ describe('chordMidiNotes', () => {
   })
 })
 
+describe('octaveForRegister', () => {
+  it('maps low, mid, and high to distinct octaves', () => {
+    const valid = [3, 4, 5]
+    expect(octaveForRegister(valid, 'low')).toBe(3)
+    expect(octaveForRegister(valid, 'mid')).toBe(4)
+    expect(octaveForRegister(valid, 'high')).toBe(5)
+  })
+})
+
 describe('fitChordToRange', () => {
   it('places treble chords in range', () => {
     const { notes } = fitChordToRange(0, 'maj', 0, 'treble', 48, 84)
     expect(notes.every((n) => n >= 48 && n <= 84)).toBe(true)
+  })
+
+  it('places C major at low, mid, and high root positions', () => {
+    const low = fitChordToRange(0, 'maj', 0, 'treble', 48, 84, 'low')
+    const mid = fitChordToRange(0, 'maj', 0, 'treble', 48, 84, 'mid')
+    const high = fitChordToRange(0, 'maj', 0, 'treble', 48, 84, 'high')
+
+    expect(low.octave).toBeLessThan(mid.octave)
+    expect(mid.octave).toBeLessThan(high.octave)
+    expect(low.notes[0]).toBe(48)
+    expect(mid.notes[0]).toBe(60)
+    expect(high.notes[0]).toBe(72)
   })
 })
 

@@ -1,5 +1,7 @@
-import { fitChordToRange } from './chordNotes'
+import { fitChordToRange, type RootRegister } from './chordNotes'
 import type { ChordFilters, ChordSpec, Clef, Inversion, PitchClass } from './types'
+
+const ROOT_REGISTERS: RootRegister[] = ['low', 'mid', 'high']
 
 function pickRandom<T>(items: T[]): T {
   return items[Math.floor(Math.random() * items.length)]!
@@ -10,6 +12,7 @@ export function generateChord(filters: ChordFilters): ChordSpec {
   const quality = pickRandom(filters.qualities)
   const inversion = pickRandom(filters.inversions)
   const clef = pickRandom(filters.clefs)
+  const register = pickRandom(ROOT_REGISTERS)
   const { octave } = fitChordToRange(
     root,
     quality,
@@ -17,6 +20,7 @@ export function generateChord(filters: ChordFilters): ChordSpec {
     clef,
     filters.minMidi,
     filters.maxMidi,
+    register,
   )
 
   return { root, quality, inversion, octave, clef }
